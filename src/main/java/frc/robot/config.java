@@ -10,7 +10,6 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
-import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.util.Units;
 
 public class config {
@@ -78,15 +77,5 @@ public class config {
                 .withClosedLoopGeneral(closed_loop)
             ;
         }
-
-        public static final TrajectoryConfig trajectory_config() {
-            return new TrajectoryConfig(
-                constants.auto.k_max_velocity_mps, 
-                constants.auto.k_max_acceleration_mps2
-                )
-                .setKinematics(constants.swerve.drive_kinematics);
-                //.addConstraint(new) TODO: add trajectory constraint
-        }
     }
-    
 }

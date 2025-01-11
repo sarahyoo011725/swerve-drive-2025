@@ -46,7 +46,7 @@ public class config {
                 .withMotorOutput(new MotorOutputConfigs()
                     .withInverted(inversion)
                     .withNeutralMode(NeutralModeValue.Brake)
-                    .withDutyCycleNeutralDeadband(0.1)
+                    .withDutyCycleNeutralDeadband(0.05)
                 );
         }
 

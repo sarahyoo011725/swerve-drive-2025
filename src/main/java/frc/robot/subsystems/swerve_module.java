@@ -78,7 +78,7 @@ public class swerve_module {
     public void set_desired_state(SwerveModuleState state) {
         state.optimize(get_state().angle);
         desired = state;
-        drive_motor.setControl(new VelocityVoltage(state.speedMetersPerSecond));
+        drive_motor.setControl(new VelocityVoltage(Units.radiansToRotations(state.speedMetersPerSecond / constants.swerve.wheel_radius)));
         turn_motor.setControl(new PositionVoltage(state.angle.getRotations()));
         SmartDashboard.putString("Swerve[" + abs.getSourceChannel() + "] state", state.toString());
     }

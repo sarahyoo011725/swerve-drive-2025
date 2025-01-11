@@ -35,7 +35,7 @@ public class swerve_joystick_commands extends Command {
     }
 
     double getJoystickValue(double value) {
-        if (Math.abs(value) < 0.6) return 0; //why is Axis[2] increasing?
+        if (Math.abs(value) < 0.1) return 0; //why is Axis[2] increasing?
         return value;
     }
 

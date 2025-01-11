@@ -23,7 +23,7 @@ public class swerve extends SubsystemBase {
         constants.ids.can_swerve_fl_turn, 
         constants.ids.dio_swerve_fl_abs, 
         constants.swerve.module_names.fl.name,
-        0.141
+        0.129
     );
 
     private final swerve_module front_right = new swerve_module(
@@ -31,7 +31,7 @@ public class swerve extends SubsystemBase {
         constants.ids.can_swerve_fr_turn, 
         constants.ids.dio_swerve_fr_abs, 
         constants.swerve.module_names.fr.name,
-        0.201
+        0.197
     );
 
     private final swerve_module back_left = new swerve_module(
@@ -39,7 +39,7 @@ public class swerve extends SubsystemBase {
         constants.ids.can_swerve_bl_turn, 
         constants.ids.dio_swerve_bl_abs, 
         constants.swerve.module_names.bl.name,
-        0.848
+        0.845
     );
 
     private final swerve_module back_right = new swerve_module(
@@ -47,7 +47,7 @@ public class swerve extends SubsystemBase {
         constants.ids.can_swerve_br_turn, 
         constants.ids.dio_swerve_br_abs, 
         constants.swerve.module_names.br.name,
-        0.684
+        0.686
     );
 
     private final Pigeon2 gyro = new Pigeon2(constants.ids.can_pigeon, config.can_ivore);
@@ -90,7 +90,7 @@ public class swerve extends SubsystemBase {
     public Rotation2d get_heading() {
         return gyro.getRotation2d();
     }
-    
+
     public void reset_turn() {
         front_left.reset_turn();
         front_right.reset_turn();

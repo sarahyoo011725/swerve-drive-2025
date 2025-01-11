@@ -56,7 +56,7 @@ public class constants {
 
         private static final double k = 1.01634;
         public static final double wheel_diameter = Units.inchesToMeters(3.75) * k;
-        public static final double wheel_radius = 3.8;
+        public static final double wheel_radius = wheel_diameter / 2;
         
         public static final double half_chassis_meters = Units.inchesToMeters(21) /2;
         public static final double half_wheel_base_meters = 0.52705 / 2;

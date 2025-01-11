@@ -62,7 +62,7 @@ public class swerve extends SubsystemBase {
     Field2d field = new Field2d();
 
     public swerve() {
-        SmartDashboard.putData("field", field);
+        SmartDashboard.putData(field);
         new Thread(() -> {
             try {
                 Thread.sleep(1000);

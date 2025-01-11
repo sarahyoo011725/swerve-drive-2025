@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
 
 import com.ctre.phoenix6.controls.PositionVoltage;
@@ -48,7 +49,7 @@ public class swerve_module {
     }
 
     public Distance get_drive_pos() {
-        return Inches.of(constants.swerve.wheel_radius).times(Units.rotationsToRadians(drive_motor.getPosition().getValueAsDouble()));
+        return Meters.of(constants.swerve.wheel_radius).times(drive_motor.getPosition().getValue().in(Radians));
     }
     
     public Angle get_turn_pos() {

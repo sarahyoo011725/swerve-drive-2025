@@ -89,16 +89,22 @@ public class swerve extends SubsystemBase {
     }
 
     PIDController x_pid = new PIDController(6, 0, 0);
+    PIDController y_pid = new PIDController(6, 0, 0);
     PIDController turn_pid = new PIDController(0, 0, 0);
 
     public Command strafe_to_point(Translation2d point) {
        return Commands.run(() -> {
          var error = point.minus(robot_pos.getTranslation());
          var error_len = error.getNorm();
-         var speed = x_pid.calculate(error_len);
+         var speed = x_pid.calculate(-error_len, 0);
+         if(Math.abs(speed) > 1) {
+            speed = Math.signum(speed);
+         }
          var output = error.div(error_len == 0 ? 1 : error_len).times(speed);
          var result = new ChassisSpeeds(output.getX(), output.getY(), 0);
          apply_chassis_speeds(result);
+       }, this).until(() -> {
+            return point.minus(robot_pos.getTranslation()).getNorm() < 0.05;
        });
     }
 

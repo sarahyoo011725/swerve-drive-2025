@@ -17,7 +17,7 @@ import frc.robot.config;
 import frc.robot.constants;
 import frc.robot.sim.swerve_mech2d;
 
-public class swerve_subsystem extends SubsystemBase {
+public class swerve extends SubsystemBase {
     private final swerve_module front_left = new swerve_module(
         constants.ids.can_swerve_fl_drive, 
         constants.ids.can_swerve_fl_turn, 
@@ -58,11 +58,10 @@ public class swerve_subsystem extends SubsystemBase {
         new Pose2d()
     );
     private final swerve_mech2d mech = new swerve_mech2d(3, this);
-    private final turret turret = new turret();
     Pose2d robot_pos;
     Field2d field = new Field2d();
 
-    public swerve_subsystem() {
+    public swerve() {
         SmartDashboard.putData("field", field);
         new Thread(() -> {
             try {
@@ -90,10 +89,6 @@ public class swerve_subsystem extends SubsystemBase {
     
     public Rotation2d get_heading() {
         return gyro.getRotation2d();
-    }
-    
-    public void update_turret_offsets() {
-        turret.save_offsets();
     }
     
     public void reset_turn() {

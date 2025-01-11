@@ -7,16 +7,25 @@ package frc.robot;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.subsystems.swerve;
+import frc.robot.subsystems.turret;
 
 
-public class Robot extends TimedRobot {
+public final class Robot extends TimedRobot {
   private Command m_autonomousCommand;
   
-  private RobotContainer m_robotContainer;
+  public final turret turret;
+  public final swerve swerve;
+  
+  public Robot() {
+    swerve = new swerve();
+    turret = new turret();
+  }
 
   @Override
   public void robotInit() {
-    m_robotContainer = new RobotContainer();
+    bindings.configure_bindings(this);
+    turret.disabled = true;
   }
 
   @Override
@@ -35,11 +44,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
-    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
-
-    if (m_autonomousCommand != null) {
-      m_autonomousCommand.schedule();
-    }
+  
   }
 
   @Override

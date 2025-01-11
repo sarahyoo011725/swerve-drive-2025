@@ -20,6 +20,8 @@ public class turret extends SubsystemBase {
     private final SimpleMotorFeedforward ff = new SimpleMotorFeedforward(0.02, 0.02);
     private final PIDController pid = new PIDController(0.08, 0, 0);
 
+    public boolean disabled;
+
     private double target_deg = 0, target_degps = 0;
     private double minier_offset = 0, mini_offset = 0;
     
@@ -36,6 +38,7 @@ public class turret extends SubsystemBase {
 
     @Override
     public void periodic() {
+        if (disabled) return;
         set_target();
         motor.setVoltage(ff.calculate(target_degps) + pid.calculate(get_position_degrees(), target_deg));
         SmartDashboard.putNumber("abs_minier", minier.get());

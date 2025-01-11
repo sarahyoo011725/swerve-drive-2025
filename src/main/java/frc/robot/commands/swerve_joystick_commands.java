@@ -8,15 +8,15 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.constants;
-import frc.robot.subsystems.swerve_subsystem;
+import frc.robot.subsystems.swerve;
 
 public class swerve_joystick_commands extends Command {
-    private final swerve_subsystem swerve_subsystem;
+    private final swerve swerve_subsystem;
     private final Supplier<Double> left_x, left_y, right_x;
     private final SlewRateLimiter x_limiter, y_limiter, turn_limiter; 
     
     public swerve_joystick_commands(
-        swerve_subsystem swerve_subsystem, 
+        swerve swerve_subsystem, 
         Supplier<Double> left_x, 
         Supplier<Double> left_y, 
         Supplier<Double> right_x 

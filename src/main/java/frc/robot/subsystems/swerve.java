@@ -4,14 +4,19 @@ import static edu.wpi.first.units.Units.Radians;
 
 import com.ctre.phoenix6.hardware.Pigeon2;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.config;
 import frc.robot.constants;
@@ -50,8 +55,8 @@ public class swerve extends SubsystemBase {
         0.686
     );
 
-    private final Pigeon2 gyro = new Pigeon2(constants.ids.can_pigeon, config.can_ivore);
-    private final SwerveDrivePoseEstimator pose_estimator = new SwerveDrivePoseEstimator(
+    public final Pigeon2 gyro = new Pigeon2(constants.ids.can_pigeon, config.can_ivore);
+    public final SwerveDrivePoseEstimator pose_estimator = new SwerveDrivePoseEstimator(
         constants.swerve.drive_kinematics, 
         get_heading(), 
         get_modules_pos(), 
@@ -81,6 +86,25 @@ public class swerve extends SubsystemBase {
         field.setRobotPose(robot_pos);
         SmartDashboard.putNumber("robot heading", get_heading().getDegrees());
         print_outputs();
+    }
+
+    PIDController x_pid = new PIDController(6, 0, 0);
+    PIDController turn_pid = new PIDController(0, 0, 0);
+
+    public Command strafe_to_point(Translation2d point) {
+       return Commands.run(() -> {
+         var error = point.minus(robot_pos.getTranslation());
+         var error_len = error.getNorm();
+         var speed = x_pid.calculate(error_len);
+         var output = error.div(error_len == 0 ? 1 : error_len).times(speed);
+         var result = new ChassisSpeeds(output.getX(), output.getY(), 0);
+         apply_chassis_speeds(result);
+       });
+    }
+
+    public void apply_chassis_speeds(ChassisSpeeds speeds) {
+        var module_states = constants.swerve.drive_kinematics.toSwerveModuleStates(speeds);
+        set_module_states(module_states);
     }
     
     public void zero_heading() {

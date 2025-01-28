@@ -8,11 +8,13 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -21,6 +23,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.config;
 import frc.robot.constants;
 import frc.robot.sim.swerve_mech2d;
+import frc.robot.utils.math_utils;
 
 public class swerve extends SubsystemBase {
     private final swerve_module front_left = new swerve_module(
@@ -65,6 +68,7 @@ public class swerve extends SubsystemBase {
     private final swerve_mech2d mech = new swerve_mech2d(3, this);
     Pose2d robot_pos;
     Field2d field = new Field2d();
+    ChassisSpeeds desired_relative_field_Speeds = new ChassisSpeeds();
 
     public swerve() {
         SmartDashboard.putData(field);
@@ -82,7 +86,12 @@ public class swerve extends SubsystemBase {
     @Override
     public void periodic() {
         mech.update(get_heading(), get_desired_states());
-        robot_pos = pose_estimator.update(get_heading(), get_modules_pos());
+        if(RobotBase.isReal()) {
+            robot_pos = pose_estimator.update(get_heading(), get_modules_pos());
+        } else {
+            var t = new Translation2d(desired_relative_field_Speeds.vxMetersPerSecond, desired_relative_field_Speeds.vyMetersPerSecond);
+            robot_pos = robot_pos.plus(new Transform2d(t.times(0.02), get_heading()));
+        }
         field.setRobotPose(robot_pos);
         SmartDashboard.putNumber("robot heading", get_heading().getDegrees());
         print_outputs();
@@ -92,21 +101,57 @@ public class swerve extends SubsystemBase {
     PIDController y_pid = new PIDController(6, 0, 0);
     PIDController turn_pid = new PIDController(0, 0, 0);
 
-    public Command strafe_to_point(Translation2d point) {
-       return Commands.run(() -> {
-         var error = point.minus(robot_pos.getTranslation());
-         var error_len = error.getNorm();
-         var speed = x_pid.calculate(-error_len, 0);
-         if(Math.abs(speed) > 1) {
-            speed = Math.signum(speed);
-         }
-         var output = error.div(error_len == 0 ? 1 : error_len).times(speed);
-         var result = new ChassisSpeeds(output.getX(), output.getY(), 0);
-         apply_chassis_speeds(result);
-       }, this).until(() -> {
-            return point.minus(robot_pos.getTranslation()).getNorm() < 0.05;
-       });
+    public void set_speeds(ChassisSpeeds speeds) {
+        desired_relative_field_Speeds.vxMetersPerSecond = speeds.vxMetersPerSecond;
+        desired_relative_field_Speeds.vyMetersPerSecond = speeds.vyMetersPerSecond;
     }
+
+    public void reset_pose() {
+        pose_estimator.resetPose(new Pose2d());
+    }
+
+    public void strafe_to_point(Translation2d point, double max_vel) {
+        var error = point.minus(robot_pos.getTranslation());
+        var error_len = error.getNorm();
+        var speed = math_utils.clamp(x_pid.calculate(-error_len, 0), 0, max_vel);
+        if(Math.abs(speed) > 1) {
+        speed = Math.signum(speed);
+        }
+        var output = error.div(error_len == 0 ? 1 : error_len).times(speed);
+        var result = new ChassisSpeeds(output.getX(), output.getY(), 0);
+        apply_chassis_speeds(result);
+        set_speeds(result); //for sim
+    }
+
+    public Command strafe_line(Translation2d point, Rotation2d direction, double max_vel, double tolerance) {
+        return Commands.run(() -> {
+            var error = point.minus(robot_pos.getTranslation()).rotateBy(direction.unaryMinus());
+            var x_out = math_utils.clamp(x_pid.calculate(-error.getX(), 0), 0, max_vel);
+            var y_out = math_utils.clamp(y_pid.calculate(-error.getY(), 0), 0, max_vel);
+            var speeds = new ChassisSpeeds(x_out, y_out, 0);
+            apply_chassis_speeds(speeds);
+            set_speeds(speeds);
+        }, this).until(() -> math_utils.close_enough(robot_pos.getTranslation(), point, tolerance));
+    }
+
+    //trying something never useful but fun
+    //public Command strafe_sine(Translation2d point, double max_vel, double graph_amp) {
+        //var start_pos = robot_pos.getTranslation();
+        //var line = point.minus(start_pos);
+        //var angle = line.getAngle();
+        //var cycle_dist = math_utils.distance(start_pos, point); 
+        //return Commands.run(() -> {
+            //var err = point.minus(robot_pos.getTranslation()).rotateBy(angle.unaryMinus());            
+            //var relative_pos = robot_pos.rotateBy(angle.unaryMinus());
+           //// var curr = err.minus(start_pos); 
+            //var y_pos = math_utils.get_sin_pos(relative_pos.getTranslation(), start_pos, point, graph_amp, cycle_dist);
+            //SmartDashboard.putNumber("pos", y_pos);
+            //field.getObject("curr").setPose(new Pose2d(relative_pos.getTranslation(), new Rotation2d()));
+            //strafe_to_point(new Translation2d(robot_pos.getX(), y_pos), max_vel);        
+        //}, this).until(() -> {
+            //return point.minus(robot_pos.getTranslation()).getNorm() < 0.05;
+        //});
+    //}
 
     public void apply_chassis_speeds(ChassisSpeeds speeds) {
         var module_states = constants.swerve.drive_kinematics.toSwerveModuleStates(speeds);

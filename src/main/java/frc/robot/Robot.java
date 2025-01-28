@@ -4,7 +4,6 @@
 
 package frc.robot;
 
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -47,7 +46,6 @@ public final class Robot extends TimedRobot {
       swerve.reset_turn();
       timer.restart();
     }
-
   }
 
   @Override
@@ -55,7 +53,9 @@ public final class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
-    swerve.strafe_to_point(new Translation2d(2, 0)).schedule();;
+    swerve.reset_pose();
+    //swerve.strafe_sine(new Translation2d(4, 6), 1, 1).schedule();
+    //swerve.strafe_line(new Translation2d(2, 0), Rotation2d.fromDegrees(45)).schedule();
   }
 
   @Override

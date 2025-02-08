@@ -9,15 +9,21 @@ import frc.robot.robot;
 
 public class commands {
 
-   public static Command teleop_swere_strafe(robot robot, Supplier<Translation2d> strafe_func, Supplier<Double> turn_func) {
-        var speed_factor = 3;
+   public static Command teleop_swerve_strafe(robot robot, Supplier<Translation2d> strafe_func) {
+        var speed_factor = 1;
         return robot.swerve.strafe_field_relative(() -> {
             var speeds = strafe_func.get();
             return ChassisSpeeds.fromFieldRelativeSpeeds(new ChassisSpeeds(
                 speeds.getX() * speed_factor,
                 speeds.getY() * speed_factor,
-                turn_func.get() * speed_factor
+                0
             ), robot.swerve.get_heading());
         });
    }
+
+    public static Command teleop_swerve_turn(robot robot, Supplier<Double> turn_func) {
+        return robot.swerve.turn(() -> {
+            return turn_func.get() * 2;
+        });
+    }
 }

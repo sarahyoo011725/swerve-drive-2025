@@ -79,6 +79,8 @@ public class swerve extends SubsystemBase {
     private final Field2d field = new Field2d();
     private ChassisSpeeds desired_relative_field_speeds = new ChassisSpeeds();
 
+    public SubsystemBase turn_subsystembase = new SubsystemBase() {}; //TODO: fix commands overrids issues
+
     public swerve() {
         SmartDashboard.putData(field);
         new Thread(() -> {
@@ -99,18 +101,17 @@ public class swerve extends SubsystemBase {
         var module_states = constants.swerve.drive_kinematics.toSwerveModuleStates(desired_relative_field_speeds);
         set_module_states(module_states); 
        
-        //TODO: remember last tag seen (strafe to tag even if invisible)
-        SmartDashboard.putNumber("last_offset_x", last_offset.getX());
-        SmartDashboard.putNumber("last_offset_y", last_offset.getY());
-        SmartDashboard.putNumber("robot heading", get_heading().getDegrees());
         print_outputs();
     }
 
     //TODO: separate chassis speeds for turn
-    public void set_speeds(ChassisSpeeds speeds) {
+    public void set_strafe_speeds(ChassisSpeeds speeds) {
         desired_relative_field_speeds.vxMetersPerSecond = speeds.vxMetersPerSecond;
         desired_relative_field_speeds.vyMetersPerSecond = speeds.vyMetersPerSecond;
-        desired_relative_field_speeds.omegaRadiansPerSecond = speeds.omegaRadiansPerSecond;
+    }
+
+    public void set_turn_speed(double omega_rps) {
+        desired_relative_field_speeds.omegaRadiansPerSecond = omega_rps; 
     }
     
     public void reset_pose() {
@@ -129,11 +130,31 @@ public class swerve extends SubsystemBase {
     
     public Command strafe_field_relative(Supplier<ChassisSpeeds> strafe_supplier) {
         return Commands.run(() -> {
-            set_speeds(strafe_supplier.get());
+            set_strafe_speeds(strafe_supplier.get());
         }, this)
         .finallyDo(() -> {
-            set_speeds(new ChassisSpeeds(0, 0, 0));
+            set_strafe_speeds(new ChassisSpeeds(0, 0, 0));
         }); 
+    }
+
+    public Command turn(Supplier<Double> omega_supplier) {
+        return Commands.run(() -> {
+            set_turn_speed(omega_supplier.get());
+        }, turn_subsystembase)
+        .finallyDo(() -> {
+            set_turn_speed(0);
+        });
+    }
+
+    public Command snap_with_omega(Supplier<Double> omega_supplier) {
+        return turn(() -> {
+            var theta = omega_supplier.get();
+            var speed = theta_ctrl.calculate(theta, get_heading().getRadians());
+            if (Math.abs(speed) <= 0.2) {
+                return 0.0;
+            } 
+            return speed;
+        });
     }
 
     public Command strafe_to_tag(String limelight_name, double max_vel) {
@@ -156,32 +177,35 @@ public class swerve extends SubsystemBase {
         });
     }
 
-    Translation2d last_offset = new Translation2d();
+    //TODO: remember last tag seen (strafe to tag even if invisible)
     public Command strafe_to_tag(String ll_name) {
         final double hypot_tolerance = Units.inchesToMeters(1.5);
         Debouncer debouncer = new Debouncer(0.05);
         return strafe_robot_relative(() -> {
             double x_spd = 0.5, y_spd = 0;
             if (LimelightHelpers.getTV(ll_name)) {
-                var offset = math_utils.tag_translation2d(ll_name, 25, - get_heading().getDegrees()); 
-                last_offset = offset;
-            }
-            var err = new Translation2d(1.7 - last_offset.getX(), last_offset.getY());
-            var err_len = err.getNorm();
-            var speed = x_ctrl.calculate(err_len);
-            var output = err.div(err_len == 0 ? 1 : err_len).times(speed);
-            x_spd = output.getX();
-            y_spd = output.getY();
-            if (debouncer.calculate(err_len < hypot_tolerance)) {
-               x_spd = 0;
-               y_spd = 0; 
+                var offset = math_utils.tag_translation2d(ll_name, 25, -get_heading().getDegrees()); 
+                var err = new Translation2d(1.7 - offset.getX(), offset.getY());
+                var err_len = err.getNorm();
+                var speed = x_ctrl.calculate(err_len);
+                var output = err.div(err_len == 0 ? 1 : err_len).times(speed);
+                x_spd = output.getX();
+                y_spd = output.getY();
+                if (debouncer.calculate(err_len < hypot_tolerance)) {
+                    x_spd = 0;
+                    y_spd = 0; 
+                }
             }
             if (!is_theta_within(20)) {
                 x_spd = 0;
                 y_spd = 0; 
             }
             return new ChassisSpeeds(x_spd, y_spd, 0);
-        });
+        }).andThen(
+            snap_with_omega(() -> {
+                return 0.0; //TODO: automatically find angle to tag 
+            })
+        );
     }
 
     public Command strafe_to_point(Supplier<Translation2d> func, double max_vel, double tolerance) {

@@ -1,11 +1,12 @@
 package frc.robot.utils;
 
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.util.Units;
 import frc.robot.LimelightHelpers;
 
 public class math_utils {
 
-    public static double square(double num) {
+    public static double sq(double num) {
         return num * num;
     }
 
@@ -33,17 +34,17 @@ public class math_utils {
         return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
     }
 
-    public static Translation2d tag_translation2d(String limelight_name, double mounted_angle) {
+    public static Translation2d tag_translation2d(String limelight_name, double mounted_angle, double extra_tx) {
         if (!LimelightHelpers.getTV(limelight_name)) {
             return new Translation2d();
         }
         var tag = LimelightHelpers.getTargetPose3d_CameraSpace(limelight_name);
         var ty = LimelightHelpers.getTY(limelight_name) + mounted_angle;
-        var tx = LimelightHelpers.getTX(limelight_name);
+        var tx = LimelightHelpers.getTX(limelight_name) + extra_tx;
         var hypot_3d = tag.getTranslation().getNorm(); 
-        var hypot_2d = Math.cos(ty) * hypot_3d;
-        var x_dist = Math.cos(tx) * hypot_2d;
-        var y_dist = Math.sin(tx) * hypot_2d;
+        var hypot_2d = Math.cos(Units.degreesToRadians(ty)) * hypot_3d;
+        var x_dist = Math.cos(Units.degreesToRadians(tx)) * hypot_2d;
+        var y_dist = Math.sin(Units.degreesToRadians(tx)) * hypot_2d;
         return new Translation2d(x_dist, y_dist);
     }
 

@@ -5,6 +5,8 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
 
 public class constants {
+    public static final double control_frq = 100;
+    public static final double control_dts = 1/ control_frq;
 
     public final class ids {
         public static final int can_swerve_fl_turn = 3;

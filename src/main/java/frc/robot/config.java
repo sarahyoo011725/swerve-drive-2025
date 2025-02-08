@@ -11,6 +11,9 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.Unit;
+import frc.robot.controls.drivetrain_controller;
+import frc.robot.controls.drivetrain_controller.configuration;
 
 public class config {
     public static final String can_ivore = "canivore";
@@ -77,8 +80,23 @@ public class config {
                 .withClosedLoopGeneral(closed_loop)
             ;
         }
-    }
 
+        public static drivetrain_controller.configuration strafe_config = new drivetrain_controller.configuration()
+            .with_pid(7.5, 0, 0)
+            .with_pid_threshold(0.1) 
+            .with_max_vel(constants.swerve.max_module_speed_mps)
+            .with_max_accel(3.8)
+            .with_epsilson(0.07);
+        
+        public static drivetrain_controller.configuration turn_config = new drivetrain_controller.configuration()
+            .with_pid(9, 0, 0.2)
+            .with_pid_threshold(Units.degreesToRadians(10)) 
+            .with_max_vel(Units.degreesToRadians(720))
+            .with_max_accel(Units.degreesToRadians(1000))
+            .with_continuous_input(-Math.PI, Math.PI)
+            .with_epsilson(Units.degreesToRadians(4.0))
+            .with_deadzone(Units.degreesToRadians(0.5));
+    }
     //TODO: create LL class
 }
 

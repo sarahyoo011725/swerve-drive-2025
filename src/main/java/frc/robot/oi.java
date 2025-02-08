@@ -52,6 +52,6 @@ public class oi {
 
     //TODO: add strafing shapes selection
     public static double strafe(double x) {
-       return math_utils.square(x); 
+       return math_utils.sq(x); 
     }
 }

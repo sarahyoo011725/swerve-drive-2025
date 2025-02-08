@@ -157,26 +157,6 @@ public class swerve extends SubsystemBase {
         });
     }
 
-    public Command strafe_to_tag(String limelight_name, double max_vel) {
-        Debouncer debouncer = new Debouncer(0.01);
-        return strafe_robot_relative(() -> {
-            double x_speed = 0;
-            double y_speed = 0;
-            if (LimelightHelpers.getTV(limelight_name)) {
-                var offset = math_utils.tag_translation2d("limelight-one", 25, -get_heading().getDegrees()); 
-                SmartDashboard.putNumber("y_dist", offset.getY());
-                SmartDashboard.putNumber("x_dist", offset.getX());
-                var x_dist = offset.getX();
-                var y_dist = offset.getY();
-                y_speed = math_utils.clamp(y_ctrl.calculate(y_dist), -max_vel, max_vel);
-                x_speed = math_utils.clamp(x_ctrl.calculate(-x_dist, -1.7), -max_vel, max_vel);
-                if (Math.abs(offset.getX()) <= 0.1) x_speed = 0;
-                if (Math.abs(offset.getY()) <= 0.1) y_speed = 0;
-            }
-            return new ChassisSpeeds(x_speed, y_speed, 0);
-        });
-    }
-
     //TODO: remember last tag seen (strafe to tag even if invisible)
     public Command strafe_to_tag(String ll_name) {
         final double hypot_tolerance = Units.inchesToMeters(1.5);

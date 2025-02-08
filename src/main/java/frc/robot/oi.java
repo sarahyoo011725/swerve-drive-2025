@@ -12,8 +12,10 @@ public class oi {
     public static final CommandXboxController cmd_controller = new CommandXboxController(0);
     public static final XboxController drive = cmd_controller.getHID(); 
 
+    private static final double default_deadzone = 0.08;
+
     public static Translation2d get_left_stick(final XboxController controller) {
-        return new Translation2d(-controller.getLeftY(), - controller.getLeftX());
+        return new Translation2d(-controller.getLeftY(), -controller.getLeftX());
     }
 
     public static Translation2d get_right_stick(final XboxController controller) {
@@ -29,17 +31,26 @@ public class oi {
         double new_len = shaping_func.applyAsDouble((len - deadzone) / (max_len - deadzone));
         return new Translation2d(Math.min(new_len, max_len), theta);
     }
+    
+    public static Translation2d vector_deadband(final Translation2d vec_in, final DoubleUnaryOperator shaping_func) {
+        return vector_deadband(vec_in, default_deadzone, 1, shaping_func);
+    }
 
-    public static double deadband_precise(final double input, final double deadzone, final double max_len, final DoubleUnaryOperator shaping_func) {
-        final double sign = input < 0 ? -1 : (input > 0 ? 1 : 0);
-        final double abs_value = Math.abs(input);
-        if (abs_value < deadzone) {
+    public static double deadband_precise(final double d_in, final double deadzone, final double max_len, final DoubleUnaryOperator shaping_func) {
+        final double sign = d_in < 0 ? -1 : (d_in > 0 ? 1 : 0);
+        final double d = Math.abs(d_in);
+        if (d < deadzone) {
             return 0;
         }
-        double deadzoned = (abs_value - deadzone) / (max_len - deadzone);
+        double deadzoned = (d - deadzone) / (max_len - deadzone);
         return shaping_func.applyAsDouble(Math.abs(deadzoned)) * sign;
     }
 
+    public static double deadband_precise(final double d_in, final DoubleUnaryOperator shaping_func) {
+        return deadband_precise(d_in, default_deadzone, 1, shaping_func);
+    }
+
+    //TODO: add strafing shapes selection
     public static double strafe(double x) {
        return math_utils.square(x); 
     }

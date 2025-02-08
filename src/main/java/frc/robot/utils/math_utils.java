@@ -4,9 +4,15 @@ import edu.wpi.first.math.geometry.Translation2d;
 import frc.robot.LimelightHelpers;
 
 public class math_utils {
+
     public static double square(double num) {
         return num * num;
     }
+
+    public static double cube(double num) {
+        return num * num * num;
+    }
+
     public static double clamp(double value, double min, double max) {
         return value < min ? value : (value > max ? max : value);
     }
@@ -31,13 +37,13 @@ public class math_utils {
         if (!LimelightHelpers.getTV(limelight_name)) {
             return new Translation2d();
         }
-        var pose3d = LimelightHelpers.getTargetPose3d_CameraSpace(limelight_name);
-        var ty = LimelightHelpers.getTY(limelight_name);
+        var tag = LimelightHelpers.getTargetPose3d_CameraSpace(limelight_name);
+        var ty = LimelightHelpers.getTY(limelight_name) + mounted_angle;
         var tx = LimelightHelpers.getTX(limelight_name);
-        var theta = ty + mounted_angle; 
-        var hypot = pose3d.getTranslation().getNorm(); 
-        var x_dist = Math.cos(theta) * hypot;
-        var y_dist = Math.sin(tx) * x_dist;
+        var hypot_3d = tag.getTranslation().getNorm(); 
+        var hypot_2d = Math.cos(ty) * hypot_3d;
+        var x_dist = Math.cos(tx) * hypot_2d;
+        var y_dist = Math.sin(tx) * hypot_2d;
         return new Translation2d(x_dist, y_dist);
     }
 

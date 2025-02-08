@@ -94,6 +94,7 @@ public class swerve extends SubsystemBase {
         field.setRobotPose(get_pose2d());
         var module_states = constants.swerve.drive_kinematics.toSwerveModuleStates(desired_relative_field_Speeds);
         set_module_states(module_states); 
+
         SmartDashboard.putNumber("robot heading", get_heading().getDegrees());
         print_outputs();
     }
@@ -128,17 +129,16 @@ public class swerve extends SubsystemBase {
     PIDController turn_pid = new PIDController(0, 0, 0);
 
     Distance x_dist = Meters.of(0), y_dist = Meters.of(0);
-    public Command strafe_to_point(String limelight_name, double max_vel, double tolerance) {
-        // return Commands.runOnce(() -> {
-            // }).andThen(
+    public Command strafe_to_tag(String limelight_name, double max_vel, double tolerance) {
         return strafe_to_point(() -> {
             if (!LimelightHelpers.getTV(limelight_name)) {
                 return get_pose2d().getTranslation();
             }
-            var tag_offset = LimelightHelpers.getTargetPose3d_CameraSpace(limelight_name);
-            x_dist = tag_offset.getMeasureZ().minus(Meters.of(1.7));
-            y_dist = tag_offset.getMeasureX().times(-1);
-            return new Translation2d(x_dist, y_dist).plus(get_pose2d().getTranslation());
+            var offset = math_utils.tag_translation2d("limelight-one", 25); 
+            var t = get_pose2d().getTranslation().plus(offset);
+            x_dist = t.getMeasureX().minus(Meters.of(1.7));
+            y_dist = t.getMeasureY(); //times -1?
+            return new Translation2d(x_dist, y_dist);
         }, max_vel, tolerance);
     }
 

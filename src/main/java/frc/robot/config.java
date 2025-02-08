@@ -78,4 +78,7 @@ public class config {
             ;
         }
     }
+
+    //TODO: create LL class
 }
+

@@ -142,6 +142,23 @@ public class swerve extends SubsystemBase {
         }, max_vel, tolerance);
     }
 
+    PIDController pid = new PIDController(5, 0, 0);
+    public Command strafe_to_tag(String limelight_name, double max_vel) {
+        return strafe_robot_relative(() -> {
+            var offset = math_utils.tag_translation2d("limelight-one", 25); 
+            var x_dist = offset.getX();
+            var y_dist = offset.getY();
+            var err = new Translation2d(1.7 - x_dist, y_dist);
+            var err_len = err.getNorm();
+            var speed = math_utils.clamp(pid.calculate(-err_len, 0), 0, max_vel);
+            var output = err.div(err_len == 0 ? 1 : err_len).times(speed);
+            if (err_len < 0.05) {
+                output = new Translation2d();
+            }
+            return new ChassisSpeeds(output.getX(), output.getY(), 0);
+        });
+    }
+
     public Command strafe_to_point(Supplier<Translation2d> func, double max_vel, double tolerance) {
         return strafe_field_relative(() -> {
             var point = func.get();

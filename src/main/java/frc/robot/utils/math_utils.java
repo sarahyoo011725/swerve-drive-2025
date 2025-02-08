@@ -1,8 +1,12 @@
 package frc.robot.utils;
 
 import edu.wpi.first.math.geometry.Translation2d;
+import frc.robot.LimelightHelpers;
 
 public class math_utils {
+    public static double square(double num) {
+        return num * num;
+    }
     public static double clamp(double value, double min, double max) {
         return value < min ? value : (value > max ? max : value);
     }
@@ -23,11 +27,25 @@ public class math_utils {
         return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
     }
 
-    public static double slope(Translation2d p1, Translation2d p2) {
-        return (p1.getY() - p2.getY()) / (p1.getX() - p2.getX());
+    public static Translation2d tag_translation2d(String limelight_name, double mounted_angle) {
+        if (!LimelightHelpers.getTV(limelight_name)) {
+            return new Translation2d();
+        }
+        var pose3d = LimelightHelpers.getTargetPose3d_CameraSpace(limelight_name);
+        var ty = LimelightHelpers.getTY(limelight_name);
+        var tx = LimelightHelpers.getTX(limelight_name);
+        var theta = ty + mounted_angle; 
+        var hypot = pose3d.getTranslation().getNorm(); 
+        var x_dist = Math.cos(theta) * hypot;
+        var y_dist = Math.sin(tx) * x_dist;
+        return new Translation2d(x_dist, y_dist);
     }
 
-    public static double get_sin_pos(Translation2d pos, Translation2d p1, Translation2d p2, double amp, double cycle) {
-        return slope(p1, p2) * (pos.getX() - p2.getX()) + p2.getY() + amp * Math.sin(cycle * pos.getX());
-    }
+    //public static double slope(Translation2d p1, Translation2d p2) {
+        //return (p1.getY() - p2.getY()) / (p1.getX() - p2.getX());
+    //}
+
+    //public static double get_sin_pos(Translation2d pos, Translation2d p1, Translation2d p2, double amp, double cycle) {
+        //return slope(p1, p2) * (pos.getX() - p2.getX()) + p2.getY() + amp * Math.sin(cycle * pos.getX());
+    //}
 }

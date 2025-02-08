@@ -1,7 +1,3 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -12,13 +8,13 @@ import frc.robot.subsystems.swerve;
 import frc.robot.subsystems.turret;
 
 
-public final class Robot extends TimedRobot {
+public final class robot extends TimedRobot {
   private Command m_autonomousCommand;
   
   public final turret turret;
   public final swerve swerve;
   
-  public Robot() {
+  public robot() {
     swerve = new swerve();
     turret = new turret();
   }
@@ -54,8 +50,6 @@ public final class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     swerve.reset_pose();
-    //swerve.strafe_sine(new Translation2d(4, 6), 1, 1).schedule();
-    //swerve.strafe_line(new Translation2d(2, 0), Rotation2d.fromDegrees(45)).schedule();
   }
 
   @Override

@@ -19,11 +19,11 @@ public class turret extends SubsystemBase {
     private final DutyCycleEncoder mini, minier;
     private final SimpleMotorFeedforward ff = new SimpleMotorFeedforward(0.02, 0.02);
     private final PIDController pid = new PIDController(0.08, 0, 0);
-
-    public boolean disabled;
-
+    
     private double target_deg = 0, target_degps = 0;
     private double minier_offset = 0, mini_offset = 0;
+
+    public boolean disabled;
     
     public turret() {
         motor = new TalonFX(constants.ids.turret_motor, config.can_ivore);
@@ -41,6 +41,10 @@ public class turret extends SubsystemBase {
         if (disabled) return;
         set_target();
         motor.setVoltage(ff.calculate(target_degps) + pid.calculate(get_position_degrees(), target_deg));
+        update_smartdashboard();
+    }
+    
+    public void update_smartdashboard() {
         SmartDashboard.putNumber("abs_minier", minier.get());
         SmartDashboard.putNumber("abs_mini", mini.get());
         SmartDashboard.putNumber("turret_target_deg", target_deg);

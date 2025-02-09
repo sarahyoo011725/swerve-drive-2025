@@ -1,5 +1,7 @@
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Degrees;
+
 import java.util.function.Supplier;
 
 import edu.wpi.first.math.geometry.Translation2d;
@@ -30,8 +32,9 @@ public class bindings {
     ctrl_save_turrent_offsets.onTrue(Commands.runOnce(() -> {
       robot.turret.save_offsets();
     }).ignoringDisable(true));
-    
-    ctrl_strafe_to_point.whileTrue(robot.swerve.strafe_to_tag(config.shooter_ll));
+
+    var swerve = robot.swerve;
+    ctrl_strafe_to_point.whileTrue(robot.swerve.strafe_to_tag(config.shooter_ll).alongWith(swerve.snap(Degrees.of(0))));
   } 
 
 }

@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Radians;
+
 import java.util.function.Supplier;
 
 import edu.wpi.first.math.filter.Debouncer;
@@ -7,6 +9,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.LimelightHelpers;
@@ -68,10 +71,24 @@ public class swerve extends swerve_lowlevel {
         });
     }
 
-    public Command snap_with_omega(Supplier<Double> omega_supplier) {
+    class theta_omega {
+       public Angle angle;
+       public double omega_rps; 
+
+       public theta_omega(Angle angle, double omega_rps) {
+        this.angle = angle;
+        this.omega_rps = omega_rps;
+       }
+    }
+
+    public Command snap(Angle angle) {
+        return snap_with_omega(() -> new theta_omega(angle, 0.0));
+    }
+
+    public Command snap_with_omega(Supplier<theta_omega> supplier) {
         return turn(() -> {
-            var theta = omega_supplier.get();
-            var speed = theta_ctrl.calculate(theta, get_heading().getRadians());
+            var theta = supplier.get();
+            var speed = theta_ctrl.calculate(theta.angle.in(Radians), get_heading().getRadians(), theta.omega_rps);
             if (Math.abs(speed) <= 0.2) {
                 return 0.0;
             } 
@@ -82,12 +99,16 @@ public class swerve extends swerve_lowlevel {
     //TODO: remember last tag seen (strafe to tag even if invisible)
     public Command strafe_to_tag(LL limelight) {
         final double hypot_tolerance = Units.inchesToMeters(1.5);
-        Debouncer debouncer = new Debouncer(0.05);
-        return strafe_robot_relative(() -> {
+        final double set_distance = 1.7;
+        Debouncer debouncer = new Debouncer(0.01);
+        return Commands.runOnce(() -> {
+            x_ctrl.reset();
+        }, strafe_subsystembase)
+        .andThen(strafe_robot_relative(() -> {
             double x_spd = 0.5, y_spd = 0;
             if (LimelightHelpers.getTV(limelight.name)) {
                 var offset = math_utils.tag_translation2d(limelight, -get_heading().getDegrees()); 
-                var err = new Translation2d(1.7 - offset.getX(), offset.getY());
+                var err = new Translation2d(set_distance - offset.getX(), offset.getY());
                 var err_len = err.getNorm();
                 var speed = x_ctrl.calculate(err_len);
                 var output = err.div(err_len == 0 ? 1 : err_len).times(speed);
@@ -103,11 +124,7 @@ public class swerve extends swerve_lowlevel {
                 y_spd = 0; 
             }
             return new ChassisSpeeds(x_spd, y_spd, 0);
-        }).andThen(
-            snap_with_omega(() -> {
-                return 0.0; //TODO: automatically find angle to tag 
-            })
-        );
+        }));
     }
 
     public Command strafe_to_point(Supplier<Translation2d> func, double max_vel, double tolerance) {

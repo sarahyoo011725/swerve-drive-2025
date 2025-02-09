@@ -11,15 +11,35 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.units.Unit;
 import frc.robot.controls.drivetrain_controller;
-import frc.robot.controls.drivetrain_controller.configuration;
 
 public class config {
     public static final String can_ivore = "canivore";
     public static final String drive_canbus = can_ivore;
 
     public final class swerve {
+        public static final class module_config {
+            public int drive_id, turn_id, abs_id;
+            public InvertedValue drive_inverted, turn_inverted;
+            public double abs_offset = 0;
+            public String name = "";
+
+            public module_config(int drive_id, int turn_id, int abs_id, double abs_offset, String name) {
+                this.drive_id = drive_id;
+                this.turn_id = turn_id;
+                this.abs_id = abs_id;
+                this.abs_offset = abs_offset;
+                this.name = name;
+            }
+        }
+
+        public static final module_config[] module_configs = {
+            new module_config(constants.ids.can_swerve_fl_drive, constants.ids.can_swerve_fl_turn, constants.ids.dio_swerve_fl_abs, 0.129, "fl"),
+            new module_config(constants.ids.can_swerve_fr_drive, constants.ids.can_swerve_fr_turn, constants.ids.dio_swerve_fr_abs, 0.197, "fr"),
+            new module_config(constants.ids.can_swerve_bl_drive, constants.ids.can_swerve_bl_turn, constants.ids.dio_swerve_bl_abs, 0.845, "bl"),
+            new module_config(constants.ids.can_swerve_br_drive, constants.ids.can_swerve_br_turn, constants.ids.dio_swerve_br_abs, 0.686, "br")
+        };
+
         public static final double drive_kS = 0.22;
         private static final double max_speed_rotations_ps = Units.radiansToRotations(constants.swerve.max_module_speed_mps / constants.swerve.wheel_radius);
         private static final double drive_kV = (12.0 - drive_kS) / max_speed_rotations_ps;
@@ -66,7 +86,7 @@ public class config {
                     .withSensorToMechanismRatio(constants.swerve.module_e.mk4i_L3.steer_ratio)
                 )
                 .withSlot0(new Slot0Configs()
-                    .withKV(3.0) // TODO tune
+                    .withKV(3.0)
                     .withKP(90)
                     .withKD(0.0)
                 )

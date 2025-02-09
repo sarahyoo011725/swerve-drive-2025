@@ -18,7 +18,7 @@ public final class robot extends TimedRobot {
   private final PowerDistribution pd;
   
   public robot() {
-    swerve = new swerve();
+    swerve = new swerve(this);
     turret = new turret();
     pd = new PowerDistribution();
   }

@@ -10,11 +10,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import frc.robot.constants;
-import frc.robot.subsystems.swerve;
+import frc.robot.subsystems.swerve_lowlevel;
 
 public class swerve_mech2d {
 
-    public swerve_mech2d(double display_size, swerve swerve) {
+    public swerve_mech2d(double display_size, swerve_lowlevel swerve) {
         num_modules = 4;
         this.swerve = swerve;
         module_translations = constants.swerve.mount_positions;
@@ -62,7 +62,7 @@ public class swerve_mech2d {
     }
 
     private final int num_modules;
-    private final swerve swerve;
+    private final swerve_lowlevel swerve;
     private final Translation2d[] module_translations;
     private final double max_module_speed;
     private Mechanism2d mech;

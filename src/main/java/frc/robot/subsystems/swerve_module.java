@@ -19,33 +19,25 @@ import frc.robot.config;
 import frc.robot.constants;
 
 public class swerve_module {
+    private final config.swerve.module_config module_config;
     private final TalonFX drive_motor;
     private final TalonFX turn_motor;
     private final DutyCycleEncoder abs;
     private SwerveModuleState desired = new SwerveModuleState();
-    String name;
-    double offset;
 
-    public swerve_module(
-        int drive_motor_id, 
-        int turn_motor_id, 
-        int abs_encoder_id, 
-        String module_name,
-        double offset
-    ) {
-        drive_motor = new TalonFX(drive_motor_id, config.can_ivore);
-        turn_motor = new TalonFX(turn_motor_id, config.can_ivore);
+    public swerve_module(config.swerve.module_config module_config) {
+        drive_motor = new TalonFX(module_config.drive_id, config.can_ivore);
+        turn_motor = new TalonFX(module_config.turn_id, config.can_ivore);
         drive_motor.getConfigurator().apply(config.swerve.drive_configs(InvertedValue.Clockwise_Positive));
         turn_motor.getConfigurator().apply(config.swerve.turn_configs(InvertedValue.Clockwise_Positive));
-        name = module_name;
-        abs = new DutyCycleEncoder(abs_encoder_id);
+        abs = new DutyCycleEncoder(module_config.abs_id);
         abs.setDutyCycleRange(1.0 / 4096, 4095.0 / 4096);
-        this.offset = offset;
+        this.module_config = module_config;
         reset_turn();
     }
     
     public void print_outputs() {
-        SmartDashboard.putNumber("abs value " + name, abs.get());
+        SmartDashboard.putNumber("abs value " + module_config.name, abs.get());
     }
 
     public Distance get_drive_pos() {
@@ -65,7 +57,7 @@ public class swerve_module {
     }
 
     public void reset_turn() {
-        turn_motor.setPosition(abs.get() - offset);
+        turn_motor.setPosition(abs.get() - module_config.abs_offset);
     }
     
     public SwerveModuleState get_state() {

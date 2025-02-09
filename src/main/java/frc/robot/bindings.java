@@ -11,7 +11,7 @@ public class bindings {
   public static void configure_bindings(robot robot) {
     Supplier<Translation2d> ctrl_strafe = () -> oi.vector_deadband(oi.get_left_stick(oi.drive), oi::strafe);
     Supplier<Double> ctrl_turn = () -> oi.deadband_precise(-oi.drive.getRightX(), oi::strafe);
-    robot.swerve.setDefaultCommand(commands.teleop_swerve_strafe(robot, ctrl_strafe));
+    robot.swerve.strafe_subsystembase.setDefaultCommand(commands.teleop_swerve_strafe(robot, ctrl_strafe));
     robot.swerve.turn_subsystembase.setDefaultCommand(commands.teleop_swerve_turn(robot, ctrl_turn)); 
     
     var ctrl_reset_heading = oi.cmd_controller.leftBumper();

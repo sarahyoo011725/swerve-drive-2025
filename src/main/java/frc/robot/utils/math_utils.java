@@ -3,6 +3,7 @@ package frc.robot.utils;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import frc.robot.LimelightHelpers;
+import frc.robot.config.LL;;
 
 public class math_utils {
 
@@ -34,13 +35,13 @@ public class math_utils {
         return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
     }
 
-    public static Translation2d tag_translation2d(String limelight_name, double mounted_angle, double extra_tx) {
-        if (!LimelightHelpers.getTV(limelight_name)) {
+    public static Translation2d tag_translation2d(LL ll, double extra_tx) {
+        if (!LimelightHelpers.getTV(ll.name)) {
             return new Translation2d();
         }
-        var tag = LimelightHelpers.getTargetPose3d_CameraSpace(limelight_name);
-        var ty = LimelightHelpers.getTY(limelight_name) + mounted_angle;
-        var tx = LimelightHelpers.getTX(limelight_name) + extra_tx;
+        var tag = LimelightHelpers.getTargetPose3d_CameraSpace(ll.name);
+        var ty = LimelightHelpers.getTY(ll.name) + ll.mount_angle.getDegrees();
+        var tx = LimelightHelpers.getTX(ll.name) + extra_tx;
         var hypot_3d = tag.getTranslation().getNorm(); 
         var hypot_2d = Math.cos(Units.degreesToRadians(ty)) * hypot_3d;
         var x_dist = Math.cos(Units.degreesToRadians(tx)) * hypot_2d;

@@ -31,7 +31,7 @@ public class bindings {
       robot.turret.save_offsets();
     }).ignoringDisable(true));
     
-    ctrl_strafe_to_point.whileTrue(robot.swerve.strafe_to_tag("limelight-one"));
+    ctrl_strafe_to_point.whileTrue(robot.swerve.strafe_to_tag(config.shooter_ll));
   } 
 
 }

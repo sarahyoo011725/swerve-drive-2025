@@ -1,4 +1,4 @@
-package frc.robot.subsystems;
+package frc.robot.controls;
 
 import static edu.wpi.first.units.Units.Radians;
 

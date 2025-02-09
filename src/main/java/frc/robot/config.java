@@ -10,12 +10,29 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import frc.robot.controls.drivetrain_controller;
 
 public class config {
     public static final String can_ivore = "canivore";
     public static final String drive_canbus = can_ivore;
+
+    public static final class LL {
+        public String name;
+        public Rotation2d mount_angle;
+        public Translation3d mount_offset;
+
+        public LL (String name, Rotation2d mount_angle, Translation3d mount_offset) {
+            this.name = name;
+            this.mount_angle = mount_angle;
+            this.mount_offset = mount_offset;
+        }
+    }
+
+    public static final LL intake_ll = new LL("limelight-intake", Rotation2d.fromDegrees(55), new Translation3d(0.25, 0.093, 0.44));
+    public static final LL shooter_ll = new LL("limelight-one", Rotation2d.fromDegrees(25), new Translation3d(0.255, 0.093, 0.24));
 
     public final class swerve {
         public static final class module_config {

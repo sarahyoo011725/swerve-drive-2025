@@ -13,7 +13,9 @@ import frc.robot.LimelightHelpers;
 import frc.robot.config;
 import frc.robot.constants;
 import frc.robot.robot;
+import frc.robot.config.LL;
 import frc.robot.controls.drivetrain_controller;
+import frc.robot.controls.swerve_lowlevel;
 import frc.robot.utils.math_utils;
 import frc.robot.utils.subsystembase_dummy;
 
@@ -78,13 +80,13 @@ public class swerve extends swerve_lowlevel {
     }
 
     //TODO: remember last tag seen (strafe to tag even if invisible)
-    public Command strafe_to_tag(String ll_name) {
+    public Command strafe_to_tag(LL limelight) {
         final double hypot_tolerance = Units.inchesToMeters(1.5);
         Debouncer debouncer = new Debouncer(0.05);
         return strafe_robot_relative(() -> {
             double x_spd = 0.5, y_spd = 0;
-            if (LimelightHelpers.getTV(ll_name)) {
-                var offset = math_utils.tag_translation2d(ll_name, 25, -get_heading().getDegrees()); 
+            if (LimelightHelpers.getTV(limelight.name)) {
+                var offset = math_utils.tag_translation2d(limelight, -get_heading().getDegrees()); 
                 var err = new Translation2d(1.7 - offset.getX(), offset.getY());
                 var err_len = err.getNorm();
                 var speed = x_ctrl.calculate(err_len);

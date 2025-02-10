@@ -41,20 +41,26 @@ public class config {
             public double abs_offset = 0;
             public String name = "";
 
-            public module_config(int drive_id, int turn_id, int abs_id, double abs_offset, String name) {
+            public module_config(int drive_id, int turn_id, int abs_id, InvertedValue drive_inverted, InvertedValue turn_inverted, double abs_offset, String name) {
                 this.drive_id = drive_id;
                 this.turn_id = turn_id;
                 this.abs_id = abs_id;
+                this.drive_inverted = drive_inverted;
+                this.turn_inverted = turn_inverted;
                 this.abs_offset = abs_offset;
                 this.name = name;
             }
         }
 
         public static final module_config[] module_configs = {
-            new module_config(constants.ids.can_swerve_fl_drive, constants.ids.can_swerve_fl_turn, constants.ids.dio_swerve_fl_abs, 0.129, "fl"),
-            new module_config(constants.ids.can_swerve_fr_drive, constants.ids.can_swerve_fr_turn, constants.ids.dio_swerve_fr_abs, 0.197, "fr"),
-            new module_config(constants.ids.can_swerve_bl_drive, constants.ids.can_swerve_bl_turn, constants.ids.dio_swerve_bl_abs, 0.845, "bl"),
-            new module_config(constants.ids.can_swerve_br_drive, constants.ids.can_swerve_br_turn, constants.ids.dio_swerve_br_abs, 0.686, "br")
+            new module_config(constants.ids.can_swerve_fl_drive, constants.ids.can_swerve_fl_turn, constants.ids.dio_swerve_fl_abs,
+                 InvertedValue.Clockwise_Positive, InvertedValue.Clockwise_Positive, 0.129, "fl"),
+            new module_config(constants.ids.can_swerve_fr_drive, constants.ids.can_swerve_fr_turn, constants.ids.dio_swerve_fr_abs,
+                InvertedValue.Clockwise_Positive, InvertedValue.Clockwise_Positive, 0.197, "fr"),
+            new module_config(constants.ids.can_swerve_bl_drive, constants.ids.can_swerve_bl_turn, constants.ids.dio_swerve_bl_abs, 
+                InvertedValue.Clockwise_Positive, InvertedValue.Clockwise_Positive, 0.845, "bl"),
+            new module_config(constants.ids.can_swerve_br_drive, constants.ids.can_swerve_br_turn, constants.ids.dio_swerve_br_abs, 
+                InvertedValue.Clockwise_Positive, InvertedValue.Clockwise_Positive, 0.686, "br")
         };
 
         public static final double drive_kS = 0.22;

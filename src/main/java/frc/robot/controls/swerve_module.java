@@ -17,15 +17,16 @@ import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.config;
 import frc.robot.constants;
+import frc.robot.config.swerve.module_config;
 
 public class swerve_module {
-    private final config.swerve.module_config module_config;
+    private final module_config module_config;
     private final TalonFX drive_motor;
     private final TalonFX turn_motor;
     private final DutyCycleEncoder abs;
     private SwerveModuleState desired = new SwerveModuleState();
 
-    public swerve_module(config.swerve.module_config module_config) {
+    public swerve_module(module_config module_config) {
         drive_motor = new TalonFX(module_config.drive_id, config.can_ivore);
         turn_motor = new TalonFX(module_config.turn_id, config.can_ivore);
         drive_motor.getConfigurator().apply(config.swerve.drive_configs(InvertedValue.Clockwise_Positive));

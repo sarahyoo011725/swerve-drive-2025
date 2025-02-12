@@ -140,6 +140,5 @@ public class config {
             .with_epsilson(Units.degreesToRadians(4.0))
             .with_deadzone(Units.degreesToRadians(0.5));
     }
-    //TODO: create LL class
 }
 

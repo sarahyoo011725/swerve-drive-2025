@@ -22,12 +22,7 @@ import frc.robot.sim.swerve_mech2d;
 public class swerve_lowlevel {
     public final swerve_module[] modules = new swerve_module[4];
     public final Pigeon2 gyro = new Pigeon2(constants.ids.can_pigeon, config.can_ivore);
-    public final SwerveDrivePoseEstimator pose_estimator = new SwerveDrivePoseEstimator(
-        constants.swerve.drive_kinematics, 
-        get_heading(), 
-        get_modules_pos(), 
-        new Pose2d()
-    );
+    public final SwerveDrivePoseEstimator pose_estimator; 
     private ChassisSpeeds desired_relative_field_speeds = new ChassisSpeeds();
     private final swerve_mech2d mech = new swerve_mech2d(3, this);
     private final Field2d field = new Field2d();
@@ -36,6 +31,12 @@ public class swerve_lowlevel {
         for (int i = 0; i < 4; ++i) {
             modules[i] = new swerve_module(config.swerve.module_configs[i]); 
         }
+        pose_estimator = new SwerveDrivePoseEstimator(
+            constants.swerve.drive_kinematics, 
+            get_heading(), 
+            get_modules_pos(), 
+            new Pose2d()
+        );
         SmartDashboard.putData(field);
         mech.init();
     }

@@ -5,6 +5,7 @@ import static edu.wpi.first.units.Units.Radians;
 import java.util.function.Supplier;
 
 import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -96,19 +97,25 @@ public class swerve extends swerve_lowlevel {
         });
     }
 
-    //TODO: remember last tag seen (strafe to tag even if invisible)
     public Command strafe_to_tag(LL limelight) {
         final double hypot_tolerance = Units.inchesToMeters(1.5);
         final double set_distance = 1.7;
         Debouncer debouncer = new Debouncer(0.01);
+        Debouncer debouncer_tv = new Debouncer(0.2, DebounceType.kFalling);
+        var obj = new Object() {
+            Translation2d offset;
+        };
         return Commands.runOnce(() -> {
             x_ctrl.reset();
         }, strafe_subsystembase)
         .andThen(strafe_robot_relative(() -> {
             double x_spd = 0.5, y_spd = 0;
-            if (LimelightHelpers.getTV(limelight.name)) {
-                var offset = math_utils.tag_translation2d(limelight, -get_heading().getDegrees()); 
-                var err = new Translation2d(set_distance - offset.getX(), offset.getY());
+            if(LimelightHelpers.getTV(limelight.name)) {
+                obj.offset = math_utils.tag_translation2d(limelight, -get_heading().getDegrees()); 
+            }
+            if (debouncer_tv.calculate(LimelightHelpers.getTV(limelight.name))) {
+                //var offset = math_utils.tag_translation2d(limelight, -get_heading().getDegrees()); 
+                var err = new Translation2d(set_distance - obj.offset.getX(), obj.offset.getY());
                 var err_len = err.getNorm();
                 var speed = x_ctrl.calculate(err_len);
                 var output = err.div(err_len == 0 ? 1 : err_len).times(speed);

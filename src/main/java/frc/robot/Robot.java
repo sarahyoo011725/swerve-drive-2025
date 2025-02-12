@@ -1,5 +1,7 @@
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Degrees;
+
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
@@ -55,6 +57,7 @@ public final class robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     swerve.reset_pose();
+    swerve.strafe_to_tag(config.shooter_ll).alongWith(swerve.snap(Degrees.of(0))).schedule();
   }
 
   @Override
